@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import './style.css'; // TailwindとカスタムCSSを読み込み
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

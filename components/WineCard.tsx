@@ -13,59 +13,63 @@ export const WineCard: React.FC<WineCardProps> = ({ wine }) => {
   };
 
   return (
-    <div className="group relative bg-white rounded-3xl overflow-hidden transition-all duration-500 hover:scale-[1.02] shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(128,0,32,0.1)] border border-gray-100">
-      <div className="aspect-[4/5] overflow-hidden relative">
+    <article className="wine-card">
+      <div className="wine-image-container">
         <img 
           src={wine.image_url} 
           alt={wine.name} 
-          className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+          className="wine-image"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-40" />
-        <div className="absolute top-4 left-4 bg-[#800020] text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] shadow-lg">
+        <div className="wine-badge">
           {wine.type.toUpperCase()}
         </div>
       </div>
       
-      <div className="p-8">
-        <div className="mb-4">
-          <span className="text-[#D4AF37] text-[10px] font-bold tracking-[0.3em] uppercase">{wine.region}</span>
-          <h3 className="font-serif text-2xl font-bold mt-1 text-gray-900 leading-tight h-16 line-clamp-2">{wine.name}</h3>
-        </div>
+      <div className="wine-content">
+        <header>
+          <span className="wine-region">{wine.region}</span>
+          <h3 className="wine-title font-serif">{wine.name}</h3>
+        </header>
         
-        <p className="text-gray-500 text-sm mb-6 leading-relaxed line-clamp-2">
+        <p className="wine-desc">
           {wine.description}
         </p>
 
-        <div className="flex items-center gap-4 mb-8">
-          <div className="flex-1 h-[1px] bg-gray-100" />
-          <div className="flex gap-1">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ flex: 1, height: '1px', background: '#eee' }} />
+          <div style={{ display: 'flex', gap: '4px' }}>
             {[...Array(5)].map((_, i) => (
               <div 
                 key={i} 
-                className={`w-2 h-2 rounded-full transition-colors ${i < wine.flavor_profile.body ? 'bg-[#800020]' : 'bg-gray-200'}`} 
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: i < wine.flavor_profile.body ? 'var(--wine-red)' : '#eee'
+                }}
               />
             ))}
           </div>
-          <div className="flex-1 h-[1px] bg-gray-100" />
+          <div style={{ flex: 1, height: '1px', background: '#eee' }} />
         </div>
 
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <a 
             href={wine.affiliate_url} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="block w-full text-center bg-[#800020] hover:bg-[#a00028] text-white py-4 rounded-2xl text-sm font-bold transition-all shadow-md hover:shadow-lg active:scale-95"
+            className="btn-primary"
           >
             この一本を取り寄せる
           </a>
           <button 
             onClick={handleMapSearch}
-            className="block w-full text-center border border-gray-200 hover:border-[#800020] text-gray-600 hover:text-[#800020] py-4 rounded-2xl text-sm font-bold transition-all bg-gray-50/50 hover:bg-white"
+            className="btn-secondary"
           >
             近くの取扱店を探す
           </button>
         </div>
       </div>
-    </div>
+    </article>
   );
 };

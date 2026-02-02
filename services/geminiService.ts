@@ -6,10 +6,14 @@ export class GeminiSommelier {
   private ai: GoogleGenAI;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    // Vite環境(import.meta.env)と標準環境(process.env)の両方に対応
+    const apiKey = (import.meta as any).env?.VITE_API_KEY || (process.env as any).API_KEY || "";
+    this.ai = new GoogleGenAI({ apiKey });
   }
 
   async generateCommentary(request: RecommendationRequest, selectedWines: Wine[]): Promise<string> {
+    if (!this.ai) return "申し訳ありません。現在ソムリエが不在です。";
+
     const prompt = `
       あなたは一流のソムリエです。ユーザーの要望に基づき、選ばれたワインのリコメンド理由を、日本語でエレガントかつ親しみやすく説明してください。
       
@@ -28,37 +32,40 @@ export class GeminiSommelier {
       - 親しみやすさと高級感を両立させること。
     `;
 
-    const response = await this.ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: prompt,
-      config: {
-        temperature: 0.8,
-        topP: 0.9,
-      }
-    });
-
-    return response.text || "あなたにぴったりの一本を選び抜きました。素敵なひとときをお楽しみください。";
+    try {
+      const response = await this.ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          temperature: 0.8,
+          topP: 0.9,
+        }
+      });
+      return response.text || "あなたにぴったりの一本を選び抜きました。素敵なひとときをお楽しみください。";
+    } catch (e) {
+      console.error(e);
+      return "選りすぐりのワインをご提案します。どれもあなたにぴったりの味わいです。";
+    }
   }
 
   async parseSearchIntent(userPrompt: string): Promise<{ type?: string, flavor?: string }> {
-    const response = await this.ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `ユーザーの入力を解析して、ワインのタイプや味の好みを抽出してください。
-      入力: "${userPrompt}"
-      `,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            type: { type: Type.STRING, description: "Red, White, Rose, Sparkling or undefined" },
-            flavor: { type: Type.STRING, description: "Flavor keywords (dry, sweet, heavy, light, etc.)" }
+    try {
+      const response = await this.ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: `ユーザーの入力を解析して、ワインのタイプや味の好みを抽出してください。
+        入力: "${userPrompt}"
+        `,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              type: { type: Type.STRING, description: "Red, White, Rose, Sparkling or undefined" },
+              flavor: { type: Type.STRING, description: "Flavor keywords (dry, sweet, heavy, light, etc.)" }
+            }
           }
         }
-      }
-    });
-
-    try {
+      });
       return JSON.parse(response.text || '{}');
     } catch {
       return {};
