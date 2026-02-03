@@ -1,21 +1,24 @@
 name = "pittari-wine"
-main = "./workers/app.ts" # または ./app/entry.server.tsx 等、プロジェクトの構成に合わせて
+main = "./api/wines.ts"
 compatibility_date = "2026-02-01"
 
 # D1 データベースの設定
 [[d1_databases]]
 binding = "DB"
 database_name = "wine-db"
-database_id = "767f6cb5-a01f-493b-b6cd-a271479c7baf" # npx wrangler d1 create wine-db で発行されたIDを入れる
+database_id = "767f6cb5-a01f-493b-b6cd-a271479c7baf"
+remote = true
 
 # Vectorize (ベクトル検索) の設定
 [[vectorize]]
 binding = "VECTORIZE"
 index_name = "wine-index"
+remote = true
 
 # Workers AI (ベクトル化と文章生成) の設定
 [ai]
 binding = "AI"
+remote = true
 
 # 環境変数 (Googleログイン用)
 [vars]

@@ -16,9 +16,9 @@ export interface Wine {
   region: string;
   flavor_profile: FlavorProfile;
   description: string;
-  image_url: string;
+  imageUrl: string;
   price_range: PriceRange;
-  affiliate_url: string;
+  affiliateUrl: string;
 }
 
 export interface RecommendationRequest {

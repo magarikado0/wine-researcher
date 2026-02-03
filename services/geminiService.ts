@@ -32,20 +32,37 @@ export class GeminiSommelier {
       - 親しみやすさと高級感を両立させること。
     `;
 
-    try {
-      const response = await this.ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-        config: {
-          temperature: 0.8,
-          topP: 0.9,
+    // Retry with exponential backoff for 503 errors
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const response = await this.ai.models.generateContent({
+          model: "gemini-3-flash-preview",
+          contents: prompt,
+          config: {
+            temperature: 0.8,
+            topP: 0.9,
+          }
+        });
+        return response.text || "あなたにぴったりの一本を選び抜きました。素敵なひとときをお楽しみください。";
+      } catch (e: any) {
+        const isOverloaded = e?.message?.includes('503') || e?.message?.includes('overloaded');
+        const isLastAttempt = attempt === maxRetries - 1;
+        
+        if (isOverloaded && !isLastAttempt) {
+          // Wait with exponential backoff: 1s, 2s, 4s
+          const waitTime = Math.pow(2, attempt) * 1000;
+          console.warn(`Gemini API overloaded, retrying in ${waitTime}ms... (attempt ${attempt + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
         }
-      });
-      return response.text || "あなたにぴったりの一本を選び抜きました。素敵なひとときをお楽しみください。";
-    } catch (e) {
-      console.error(e);
-      return "選りすぐりのワインをご提案します。どれもあなたにぴったりの味わいです。";
+        
+        console.error(e);
+        return "選りすぐりのワインをご提案します。どれもあなたにぴったりの味わいです。";
+      }
     }
+    
+    return "選りすぐりのワインをご提案します。どれもあなたにぴったりの味わいです。";
   }
 
   async parseSearchIntent(userPrompt: string): Promise<{ type?: string, flavor?: string }> {

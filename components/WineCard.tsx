@@ -16,7 +16,7 @@ export const WineCard: React.FC<WineCardProps> = ({ wine }) => {
     <article className="wine-card">
       <div className="wine-image-container">
         <img 
-          src={wine.image_url} 
+          src={wine.imageUrl} 
           alt={wine.name} 
           className="wine-image"
         />
@@ -35,27 +35,29 @@ export const WineCard: React.FC<WineCardProps> = ({ wine }) => {
           {wine.description}
         </p>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ flex: 1, height: '1px', background: '#eee' }} />
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {[...Array(5)].map((_, i) => (
-              <div 
-                key={i} 
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: i < wine.flavor_profile.body ? 'var(--wine-red)' : '#eee'
-                }}
-              />
-            ))}
+        {wine.flavor_profile && typeof wine.flavor_profile === 'object' && 'body' in wine.flavor_profile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ flex: 1, height: '1px', background: '#eee' }} />
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {[...Array(5)].map((_, i) => (
+                <div 
+                  key={i} 
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: i < wine.flavor_profile.body ? 'var(--wine-red)' : '#eee'
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ flex: 1, height: '1px', background: '#eee' }} />
           </div>
-          <div style={{ flex: 1, height: '1px', background: '#eee' }} />
-        </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <a 
-            href={wine.affiliate_url} 
+            href={wine.affiliateUrl} 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn-primary"

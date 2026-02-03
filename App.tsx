@@ -3,34 +3,97 @@ import React, { useState, useEffect } from 'react';
 import { DiagnosticForm } from './components/DiagnosticForm';
 import { WineCard } from './components/WineCard';
 import { Wine, RecommendationRequest } from './types';
-import { MOCK_WINES } from './constants';
 import { GeminiSommelier } from './services/geminiService';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'landing' | 'loading' | 'results'>('landing');
   const [results, setResults] = useState<{ wines: Wine[]; commentary: string } | null>(null);
+  const [allWines, setAllWines] = useState<Wine[]>([]);
+
+  // D1からワインデータを取得
+  useEffect(() => {
+    const fetchWines = async () => {
+      try {
+        const response = await fetch('/api/wines');
+        if (response.ok) {
+          const wines = await response.json();
+          setAllWines(wines);
+        }
+      } catch (error) {
+        console.error('Failed to fetch wines:', error);
+      }
+    };
+    fetchWines();
+  }, []);
 
   const handleDiagnosis = async (data: any) => {
     setView('loading');
     
     try {
-      const sommelier = new GeminiSommelier();
-      const filtered = MOCK_WINES.filter(w => {
-        if (data.type && w.type !== data.type) return false;
-        return true;
+      // 診断データからセマンティック検索クエリを構築
+      const searchQuery = buildSearchQuery(data);
+
+      // API URL（本番では環境変数から、開発では相対パス）
+      const apiUrl = import.meta.env.VITE_API_URL || '/api/wines';
+
+      // Vectorizeでセマンティック検索
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: searchQuery,
+          limit: 3,
+        }),
       });
 
-      const commentary = await sommelier.generateCommentary(data as RecommendationRequest, filtered);
+      if (!response.ok) {
+        throw new Error('Failed to fetch wines');
+      }
 
-      setResults({ wines: filtered, commentary });
-      
+      const matchedWines = await response.json();
+
+      if (matchedWines.length === 0) {
+        throw new Error('No wines found');
+      }
+
+      const sommelier = new GeminiSommelier();
+      const commentary = await sommelier.generateCommentary(
+        data as RecommendationRequest,
+        matchedWines
+      );
+
+      setResults({ wines: matchedWines, commentary });
+
       // Simulate somatic processing for better UX
       setTimeout(() => setView('results'), 1800);
     } catch (error) {
-      console.error("Diagnosis failed", error);
+      console.error('Diagnosis failed', error);
       setView('landing');
-      alert("通信に失敗しました。もう一度お試しください。");
+      alert('通信に失敗しました。もう一度お試しください。');
     }
+  };
+
+  // 診断データからセマンティック検索クエリを構築
+  const buildSearchQuery = (data: any): string => {
+    const parts: string[] = [];
+
+    if (data.type) parts.push(`${data.type}ワイン`);
+    if (data.flavor) parts.push(`${data.flavor}な味わい`);
+    if (data.body) parts.push(`${data.body}のボディ`);
+    if (data.region) parts.push(`${data.region}産`);
+    if (data.occasion) parts.push(`${data.occasion}向き`);
+    if (data.price) {
+      const priceMap: { [key: string]: string } = {
+        low: 'リーズナブルな価格',
+        medium: '手頃な価格',
+        high: 'プレミアムな',
+      };
+      parts.push(priceMap[data.price] || '');
+    }
+
+    return parts.filter(Boolean).join('、');
   };
 
   return (
