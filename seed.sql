@@ -1,0 +1,8 @@
+-- 初期ワインデータの投入
+INSERT INTO wines (name, type, region, flavor_profile, price_range, country, description, image_url, affiliate_url) VALUES
+('シャトー・マルゴー 2018', 'Red', 'Bordeaux, France', '{"body": 5, "tannin": 5, "acidity": 4, "sweetness": 1}', 'Premium', 'France', 'ボルドーの女王。力強さと優雅さを兼ね備えた、官能的なベリーの香りと深い余韻。', 'https://example.com/margaux.jpg', 'https://example.com/affiliate/margaux'),
+('モンテス・アルファ・カベルネ', 'Red', 'Colchagua Valley, Chile', '{"body": 4, "tannin": 4, "acidity": 3, "sweetness": 1}', 'Mid', 'Chile', '熟したブラックベリーとチョコレートのニュアンス。リッチでフルボディな味わい。', 'https://example.com/montes.jpg', 'https://example.com/affiliate/montes'),
+('ルイ・ジャド シャブリ', 'White', 'Burgundy, France', '{"body": 2, "tannin": 1, "acidity": 5, "sweetness": 1}', 'Mid', 'France', 'フレッシュな柑橘系とキレのあるミネラル感。生牡蠣や和食にぴったりな辛口。', 'https://example.com/chablis.jpg', 'https://example.com/affiliate/chablis'),
+('クラウド・ベイ ソーヴィニヨン・ブラン', 'White', 'Marlborough, New Zealand', '{"body": 2, "tannin": 1, "acidity": 4, "sweetness": 1}', 'Mid', 'New Zealand', 'パッションフルーツのような鮮やかな香りと、爽やかな酸味。', 'https://example.com/cloudybay.jpg', 'https://example.com/affiliate/cloudybay'),
+('モエ・エ・シャンドン アンペリアル', 'Sparkling', 'Champagne, France', '{"body": 3, "tannin": 1, "acidity": 4, "sweetness": 2}', 'Premium', 'France', '世界で最も愛されているシャンパン。フルーティーで華やかな、お祝いの席に最適な一杯。', 'https://example.com/moet.jpg', 'https://example.com/affiliate/moet'),
+('ミラヴァル・ロゼ', 'Rose', 'Provence, France', '{"body": 2, "tannin": 1, "acidity": 3, "sweetness": 2}', 'Mid', 'France', 'ブラッド・ピットとアンジェリーナ・ジョリーが手掛けたことでも有名。上品なベリーの香り。', 'https://example.com/miraval.jpg', 'https://example.com/affiliate/miraval');
